@@ -1,0 +1,4 @@
+vnstock
+yfinance
+pandas
+requests
