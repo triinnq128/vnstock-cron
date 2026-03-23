@@ -19,7 +19,7 @@ scopes = [
 ]
 
 creds = Credentials.from_service_account_file(
-    "google_credentials.json",
+    "GOOGLE_CREDENTIALS.json",
     scopes=scopes
 )
 
