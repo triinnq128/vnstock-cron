@@ -23,10 +23,13 @@ jobs:
 
       # 3. Tạo file credentials từ GitHub Secrets
       - name: Create Google credentials
+        env:
+          # Truyền nội dung Secret vào biến môi trường tên là GOOGLE_SERVICE_ACCOUNT_JSON
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_CREDENTIALS }}
         run: |
-            cat <<EOF > GOOGLE_CREDENTIALS.json
-            ${{ secrets.GOOGLE_CREDENTIALS }}
-            EOF
+          source venv/bin/activate
+          python main.py
+
 
       # 4. Tạo venv + cài thư viện
       - name: Setup venv & install dependencies
@@ -41,6 +44,3 @@ jobs:
         run: |
           source venv/bin/activate
           python main.py
-
-      - name: Kiểm tra file (Debug)
-      run: ls -l GOOGLE_CREDENTIALS.json && wc -c GOOGLE_CREDENTIALS.json
