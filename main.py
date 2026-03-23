@@ -7,74 +7,60 @@ from google.oauth2.service_account import Credentials
 # ========================
 # 1. CONFIG
 # ========================
-
-SPREADSHEET_NAME = "trading_price_board_vci"  # Đảm bảo tên này khớp chính xác với Google Sheet của bạn
+SPREADSHEET_NAME = "trading_price_board_vci" 
 WORKSHEET_NAME = "Sheet1"
 
 # ========================
-# 2. AUTH GOOGLE (Sử dụng Biến môi trường)
+# 2. AUTH GOOGLE
 # ========================
-
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
 
-# Lấy nội dung JSON từ biến môi trường thay vì đọc file vật lý
-service_account_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-
-if not service_account_json:
-    # Nếu chạy ở máy cá nhân mà chưa có biến môi trường, code sẽ thử tìm file .json
-    if os.path.exists("GOOGLE_CREDENTIALS.json"):
-        creds = Credentials.from_service_account_file("GOOGLE_CREDENTIALS.json", scopes=scopes)
+def get_creds():
+    # Ưu tiên lấy từ biến môi trường (Chạy trên GitHub Actions)
+    service_account_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+    
+    if service_account_json:
+        print("Đang sử dụng credentials từ biến môi trường...")
+        info = json.loads(service_account_json)
+        return Credentials.from_service_account_info(info, scopes=scopes)
+    
+    # Nếu không có biến môi trường, thử tìm file vật lý (Chạy trên máy cá nhân)
+    elif os.path.exists("creds.json"):
+        print("Đang sử dụng credentials từ file creds.json...")
+        return Credentials.from_service_account_file("creds.json", scopes=scopes)
+    
     else:
-        raise ValueError("LỖI: Không tìm thấy biến môi trường GOOGLE_SERVICE_ACCOUNT_JSON hoặc file JSON!")
-else:
-    # Nếu chạy trên GitHub Actions, nó sẽ dùng biến môi trường
-    service_account_info = json.loads(service_account_json)
-    creds = Credentials.from_service_account_info(service_account_info, scopes=scopes)
+        raise ValueError("LỖI: Không tìm thấy Secret GOOGLE_CREDENTIALS trên GitHub!")
 
-client = gspread.authorize(creds)
-
-# ========================
-# 3. OPEN SHEET
-# ========================
-
-# Để an toàn hơn, chúng ta nên mở sheet bên trong hàm main hoặc dùng try-except
+# Khởi tạo client
 try:
+    creds = get_creds()
+    client = gspread.authorize(creds)
     sheet = client.open(SPREADSHEET_NAME).worksheet(WORKSHEET_NAME)
 except Exception as e:
-    print(f"Lỗi khi mở Google Sheet: {e}")
+    print(f"Lỗi khởi tạo: {e}")
     sheet = None
 
 # ========================
-# 4. TEST WRITE
+# 3. CHƯƠNG TRÌNH CHÍNH
 # ========================
-
 def main():
-    if not sheet:
-        print("Không thể kết nối tới Google Sheet. Vui lòng kiểm tra quyền chia sẻ (Share) cho Email Service Account.")
+    if sheet is None:
         return
 
-    print("Start test Google Sheet...")
-
+    print("Đang ghi dữ liệu vào Google Sheet...")
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    row = [
-        now,
-        "TEST",
-        "OK"
-    ]
+    row = [now, "VNSTOCK-CRON", "SUCCESS"]
 
     try:
         sheet.append_row(row)
-        print(f"Write success at {now}!")
+        print(f"Ghi thành công lúc: {now}")
     except Exception as e:
-        print(f"Lỗi khi ghi dữ liệu: {e}")
-
-# ========================
-# 5. RUN
-# ========================
+        print(f"Lỗi khi ghi dòng: {e}")
 
 if __name__ == "__main__":
     main()
