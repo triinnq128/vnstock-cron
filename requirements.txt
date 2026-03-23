@@ -2,3 +2,6 @@ vnstock
 yfinance
 pandas
 requests
+gspread
+google-auth
+
