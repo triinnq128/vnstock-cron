@@ -24,7 +24,7 @@ jobs:
       # 3. Tạo file credentials từ GitHub Secrets
       - name: Create Google credentials
         run: |
-          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > creds.json
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > google_credentials.json
 
       # 4. Tạo venv + cài thư viện
       - name: Setup venv & install dependencies
