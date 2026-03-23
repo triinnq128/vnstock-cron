@@ -29,5 +29,6 @@ jobs:
         env:
           # Đảm bảo bạn đã đặt Secret tên là GOOGLE_CREDENTIALS trong GitHub Settings
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_CREDENTIALS }}
+          API_KEY_STOCK: ${{ secrets.API_KEY_STOCK }}
         run: |
           python main.py
