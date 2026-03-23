@@ -1,8 +1,8 @@
-name: Auto Run Python
+name: Auto Run Python to Google Sheets
 
 on:
   schedule:
-    # 9h15, 10h15, 11h15, 13h15 giờ VN
+    # 9h15, 10h15, 11h15, 13h15 giờ VN (UTC +7)
     - cron: "15 2,3,4,6 * * *"
   workflow_dispatch:
 
@@ -21,16 +21,21 @@ jobs:
         with:
           python-version: "3.10"
 
-      # 3. Tạo venv + install
-      - name: Setup venv
+      # 3. Tạo file credentials từ GitHub Secrets
+      - name: Create Google credentials
+        run: |
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > creds.json
+
+      # 4. Tạo venv + cài thư viện
+      - name: Setup venv & install dependencies
         run: |
           python -m venv venv
           source venv/bin/activate
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4. Run script
-      - name: Run script
+      # 5. Run script
+      - name: Run main script
         run: |
           source venv/bin/activate
           python main.py
