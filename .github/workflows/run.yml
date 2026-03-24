@@ -3,7 +3,7 @@ name: Auto Run Python to Google Sheets
 on:
   schedule:
     # 9h15, 10h15, 11h15, 13h15 giờ VN (UTC +7)
-    - cron: "20,22 2,3,4,6,10,11,18 * * *"
+    - cron: "15 2,3,4,6 * * *"
   workflow_dispatch:
 
 jobs:
